@@ -1,0 +1,4 @@
+PyOpenGL
+pygame
+requests
+flask

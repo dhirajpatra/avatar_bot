@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_service
+    ports:
+      - "11434:11434" # Expose Ollama API on localhost
+    volumes:
+      - ollama_data:/root/.ollama # Persistent volume for model data
+    environment:
+      - OLLAMA_LICENSE=your_license_key # Optional, if license key is required
+    restart: unless-stopped
+
+  avatar_ai_app:
+    build:
+      context: ./app # Path to the Python app folder
+      dockerfile: Dockerfile
+    container_name: avatar_ai_app
+    depends_on:
+      - ollama
+    volumes:
+      - ./app:/usr/src/app
+    command: ["python", "app.py"]
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_API_URL=http://ollama_service:11434/api/chat
+    ports:
+      - "5000:5000" # Optional, if exposing app services externally
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+    driver: local
